@@ -10,7 +10,7 @@ Provides support for injecting styles into iframes, using the `targetDocument` m
 
 > This version is compatible with Vue 2.x
 
-``` 
+```
 yarn add vue-styled-components
 ```
 
@@ -26,9 +26,9 @@ Utilising tagged template literals (a recent addition to JavaScript) and the pow
   new Vue({
     // ...
     components {
-      'my-component': MyComponent
+      'styled-title': StyledTitle
     },
-    template: '<my-component> Hello! </my-component>'
+    template: '<styled-title> Hello! </styled-title>'
   }
 ```
 
@@ -62,9 +62,9 @@ You render them like so:
 
 ```JSX
 // Use them like any other Vue component – except they're styled!
-<Wrapper>
-  <StyledTitle>Hello World, this is my first styled component!</StyledTitle>
-</Wrapper>
+<wrapper>
+  <styled-title>Hello World, this is my first styled component!</styled-title>
+</wrapper>
 ```
 
 ### Passed props
@@ -93,7 +93,7 @@ You can just pass a `placeholder` prop into the `styled-component`. It will pass
 
 ```JSX
 // Render a styled input with a placeholder of "@liqueflies"
-<Input placeholder="@liqueflies" type="text" />
+<styled-input placeholder="@liqueflies" type="text" />
 ```
 ### Adapting based on props
 
@@ -131,8 +131,8 @@ export default StyledButton;
 ```
 
 ```JSX
-<StyledButton>Normal</StyledButton>
-<StyledButton primary>Primary</StyledButton>
+<styled-button>Normal</styled-button>
+<styled-button primary>Primary</styled-button>
 ```
 
 ### Overriding component styles
@@ -155,6 +155,45 @@ const StyledButton = styled.button`
 export default StyledButton;
 ```
 
+### Theming
+
+`vue-styled-components` has full theming support by exporting a `<ThemeProvider>` wrapper component. This component provides a theme to all `Vue` components underneath itself via the context API. In the render tree all `vue-styled-components` will have access to the provided theme, even when they are multiple levels deep.
+
+Remember to register `ThemeProvider` locally.
+
+```JSX
+  import {ThemeProvider} from 'vue-styled-components'
+
+  new Vue({
+    // ...
+    components: {
+      'theme-provider': ThemeProvider
+    },
+    // ...
+  });
+```
+
+Add your `ThemeProvider` component:
+
+```JSX
+  <theme-provider theme="{
+    primary: 'palevioletred'
+  }">
+    <wrapper>
+      // ...
+    </wrapper>
+  </theme-provider>
+```
+
+And into your `Wrapper` component:
+
+```JSX
+  const Wrapper = styled.default.section`
+    padding: 4em;
+    background: ${props => props.theme.primary};
+  `;
+```
+
 ### Style component constructors as `router-link`
 
 You can style also Vue component constructors as `router-link` from `vue-router` and other components
@@ -175,24 +214,34 @@ export default StyledLink;
 ```
 
 ```JSX
-<StyledLink to="/">Custom Router Link</StyledLink>
+<styled-link to="/">Custom Router Link</styled-link>
 ```
 
 Let's say someplace else you want to use your button component, but just in this one case you want the color and border color to be `tomato` instead of `palevioletred`. Now you _could_ pass in an interpolated function and change them based on some props, but that's quite a lot of effort for overriding the styles once.
 
-To do this in an easier way you can call `styled` as a function and pass in the previous component. You style that like any other styled-component. It overrides duplicate styles from the initial component and keeps the others around:
+To do this in an easier way you can call `StyledComponent.extend` as a function and pass in the extended style. It overrides duplicate styles from the initial component and keeps the others around:
 
 ```JSX
 // Tomatobutton.js
 
 import StyledButton from './StyledButton';
 
-const TomatoButton = styled(StyledButton)`
+const TomatoButton = StyledButton.extend`
   color: tomato;
   border-color: tomato;
 `;
 
 export default TomatoButton;
+```
+
+### withComponent
+Let's say you have a `button` and an `a` tag. You want them to share the exact same style. This is achievable with `.withComponent`.
+```JSX
+const Button = styled.button`
+  background: green;
+  color: white;
+`
+const Link = Button.withComponent('a')
 ```
 
 ### injectGlobal

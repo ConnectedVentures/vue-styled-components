@@ -8,15 +8,43 @@ export default (ComponentStyle) => {
     const componentStyle = new ComponentStyle(rules)
 
     const StyledComponent = {
+      inject: {
+        theme: {
+          default: {}
+        }
+      },
       props: mergedProps,
       render: function (createElement) {
+        const children = []
+        for (const slot in this.$slots) {
+          if (slot === 'default') {
+            children.push(this.$slots[slot])
+          } else {
+            children.push(createElement('template', { slot }, this.$slots[slot]))
+          }
+        }
+
         return createElement(
           target,
           {
             class: [this.generatedClassName],
-            props: this.$props
+            props: this.$props,
+            domProps: {
+              value: this.value
+            },
+            on: {
+              input: (event) => {
+                if (event.target) {
+                  this.$emit('input', event.target.value)
+                }
+              },
+              click: (event) => {
+                this.$emit('click', event)
+              }
+            },
+            scopedSlots: this.$scopedSlots
           },
-          this.$slots.default
+          children
         )
       },
       methods: {
@@ -26,9 +54,15 @@ export default (ComponentStyle) => {
       },
       computed: {
         generatedClassName () {
-          const componentProps = Object.assign({}, this.$props)
+          const componentProps = Object.assign({ theme: this.theme }, this.$props)
           return this.generateAndInjectStyles(componentProps)
         }
+      },
+      extend (extendedRules) {
+        return createStyledComponent(target, rules.slice().concat(extendedRules), props)
+      },
+      withComponent (newTarget) {
+        return createStyledComponent(newTarget, rules, props)
       }
     }
 

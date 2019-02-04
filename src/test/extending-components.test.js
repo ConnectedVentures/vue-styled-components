@@ -5,7 +5,7 @@ import { resetStyled, expectCSSMatches } from './utils'
 
 let styled
 
-describe('extending', () => {
+describe('extending components', () => {
   /**
    * Make sure the setup is the same for every test
    */
@@ -49,9 +49,10 @@ describe('extending', () => {
     const Parent = styled.div`background-color: blue;`
     const Child = styled(Parent)`color: red;`
 
+    const p = new Vue(Parent).$mount()
     const c = new Vue(Child).$mount()
 
-    expectCSSMatches('.a {color: red;}')
+    expectCSSMatches('.a {background-color: blue;} .b {color: red;}')
   })
 
   it('should generate different classes for both parent and child', () => {

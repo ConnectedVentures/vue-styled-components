@@ -7,10 +7,11 @@
   <body>
     <h1>Basic Example</h1>
     <div id="container"></div>
-    <script src="https://unpkg.com/vue@2.2.4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.21/dist/vue.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.24/browser.min.js"></script>
     <script src="/vue-styled-components.js"></script>
     <script type="text/babel">
+
     // Create a global style
     styled.injectGlobal`
       body {
@@ -18,27 +19,47 @@
       }
     `;
 
+    const animation = styled.keyframes`
+        from {
+          transform: rotate(0deg);
+        }
+
+        to {
+          transform: rotate(360deg);
+        }
+      `;
+
     // Create a <CustomTitle> vue component that renders an <h1> which is
     // centered, palevioletred and sized at 1.5em
     const CustomTitle = styled.default.h1`
       font-size: 1.5em;
       text-align: center;
-      color: palevioletred;
+      color: ${props => props.theme.primary};
+      animation: ${animation} 2s linear infinite;
     `;
 
     // Create a <Wrapper> vue component that renders a <section> with
     // some padding and a papayawhip background
     const Wrapper = styled.default.section`
       padding: 4em;
-      background: papayawhip;
+      background: ${props => props.theme.secondary};
     `;
 
     new Vue({
       el: '#container',
-      template: '<wrapper><custom-title> Hello World, this is my first styled component! </custom-title></wrapper>',
+      template: `
+      <theme-provider :theme="{
+        primary: 'palevioletred',
+        secondary: 'papayawhip'
+      }">
+        <wrapper>
+        <custom-title> Hello World, this is my first styled component! </custom-title>
+        </wrapper>
+      </theme-provider>`,
       components: {
         'custom-title': CustomTitle,
         wrapper: Wrapper,
+        'theme-provider': styled.ThemeProvider
       },
     });
     </script>
